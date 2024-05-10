@@ -1,1 +1,61 @@
+# Install necessary libraries
+!pip install openai
+!pip install nltk
+!pip install unidecode
 
+# Import necessary libraries
+import openai
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from unidecode import unidecode
+
+# Set up your OpenAI API key
+openai.api_key = 'YOUR_API_KEY'
+
+# Download necessary resources for NLTK
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+# Define a function to interact with ChatGPT
+def chat_with_gpt(prompt):
+    response = openai.Completion.create(
+        engine="davinci",  # You can experiment with different engines
+        prompt=prompt,
+        max_tokens=150
+    )
+    return response.choices[0].text.strip()
+
+# Define a function for data preprocessing and cleaning
+def preprocess_text(text):
+    # Convert text to lowercase
+    text = text.lower()
+    # Remove non-ASCII characters
+    text = unidecode(text)
+    # Tokenize text
+    tokens = word_tokenize(text)
+    # Remove punctuation
+    tokens = [word for word in tokens if word.isalnum()]
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if not word in stop_words]
+    # Lemmatization
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(word) for word in tokens]
+    # Join tokens back into a string
+    clean_text = ' '.join(tokens)
+    return clean_text
+
+# Read customer reviews from Excel file
+df = pd.read_excel("SunContract Customer Reviews.xlsx")
+
+# Apply data preprocessing to each review
+df['clean_review'] = df['review'].apply(preprocess_text)
+
+# Analyze sentiment for each cleaned review
+for index, row in df.iterrows():
+    sentiment = analyze_sentiment(row['clean_review'])
+    print(f"Review: {row['review']}\nSentiment: {sentiment}\n")
