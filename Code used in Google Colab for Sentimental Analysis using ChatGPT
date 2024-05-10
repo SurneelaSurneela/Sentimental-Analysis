@@ -13,7 +13,7 @@ from nltk.stem import WordNetLemmatizer
 from unidecode import unidecode
 
 # Set up your OpenAI API key
-openai.api_key = 'YOUR_API_KEY'
+openai.api_key = 'API_KEY'
 
 # Download necessary resources for NLTK
 nltk.download('punkt')
